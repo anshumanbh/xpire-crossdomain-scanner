@@ -58,6 +58,18 @@ def read_files(files):
             print "Error: File does not exist:", f
     return domains
 
+def read_input(file):
+    ''' Simple helper function '''
+    domains = []
+    if os.path.exists(file) and os.path.isfile(file):
+        with open(file, 'r') as fp:
+            domains += [
+                line.strip() for line in fp.readlines()
+            ]
+    else:
+        print "Error: File does not exist:", file
+    return domains
+
 
 def get_domains(args):
     _domains = []
@@ -67,17 +79,29 @@ def get_domains(args):
         _domains += args.domains
     if args.randomize:
         random.shuffle(_domains)
+    if args.input:
+        _domains += read_input(args.input)
     return _domains
 
 
-def display_results(results, wildcards):
+def display_results(results, wildcards, outfile):
+    f = open(outfile,'w')
     sys.stdout.write(chr(27) + '[2K\r\n')
-    print "%d crossdomain.xml(s) with wildcards" % len(wildcards)
-    for index, domain in enumerate(wildcards):
-        print "\t%d. %s" % (index + 1, domain)
-    print "%d crossdomain.xml(s) with expired domains" % len(results)
-    for index, domain in enumerate(results):
-        print "\t%d. %s: %s" % (index + 1, domain, ", ".join(results[domain]))
+    if (len(results) != 0) or (len(wildcards) != 0):
+        # save the results to a file
+        print "%d crossdomain.xml(s) with wildcards" % len(wildcards)
+        for index, domain in enumerate(wildcards):
+            print "\t%d. %s" % (index + 1, domain)
+            f.write(domain + ",wildcard\n")
+        print "%d crossdomain.xml(s) with expired domains" % len(results)
+        for index, domain in enumerate(results):
+            print "\t%d. %s: %s" % (index + 1, domain, ", ".join(results[domain]))
+            f.write(domain + ",expired\n")
+        f.close()
+    else: 
+        # save empty results to a file
+        f.write('NA')
+        f.close()
 
 
 def _main(args):
@@ -96,7 +120,7 @@ def _main(args):
         sys.stdout.write(chr(27) + '[2K\r')
         print "User exit."
     finally:
-        display_results(scanner.results, scanner.wildcards)
+        display_results(scanner.results, scanner.wildcards, args.output)
 
 
 if __name__ == '__main__':
@@ -123,10 +147,10 @@ if __name__ == '__main__':
                         dest='randomize',
                         action='store_true',
                         )
-    parser.add_argument('--xls', '-x',
-                        help='Generate a spreadsheet of vulnerable domains',
-                        dest='spreadsheet',
-                        action='store_true',
+    parser.add_argument('--output', '-o',
+                        help='Output file to store the results',
+                        dest='output',
+                        action='store',
                         )
     parser.add_argument('--http-timeout', '-t',
                         help='HTTP request timeout',
@@ -137,5 +161,10 @@ if __name__ == '__main__':
                         help='Verbose output to logs/console',
                         dest='verbose',
                         action='store_true',
+                        )
+    parser.add_argument('--input', '-iL',
+                        help='input file containing domains',
+                        dest='input',
+                        action='store',
                         )
     _main(parser.parse_args())

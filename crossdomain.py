@@ -113,10 +113,10 @@ class CrossDomainScanner(object):
                 continue
             # Skip the duplicates
             tld = self._parse_tld(entry)
-            if tld in self._cache:
-                continue
-            else:
-                self._cache[tld] = True
+            # if tld in self._cache:
+            #     continue
+            # else:
+            #     self._cache[tld] = True
             self.analyze_tld(domain, tld)
 
     def analyze_tld(self, domain, tld):
