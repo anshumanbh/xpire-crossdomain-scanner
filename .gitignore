@@ -47,3 +47,4 @@ pip-log.txt
 
 domains.txt
 env/
+.vscode/

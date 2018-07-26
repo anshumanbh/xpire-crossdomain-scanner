@@ -92,11 +92,11 @@ def display_results(results, wildcards, outfile):
         print "%d crossdomain.xml(s) with wildcards" % len(wildcards)
         for index, domain in enumerate(wildcards):
             print "\t%d. %s" % (index + 1, domain)
-            f.write(domain + ",wildcard\n")
+            f.write("%s,wildcard,*\n" % (domain))
         print "%d crossdomain.xml(s) with expired domains" % len(results)
         for index, domain in enumerate(results):
             print "\t%d. %s: %s" % (index + 1, domain, ", ".join(results[domain]))
-            f.write(domain + ",expired\n")
+            f.write("%s,expired,%s\n" % (domain, ", ".join(results[domain])))
         f.close()
     else: 
         # save empty results to a file
